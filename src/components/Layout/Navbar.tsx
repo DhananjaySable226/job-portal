@@ -1,15 +1,32 @@
-
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, BriefcaseBusiness } from 'lucide-react';
+import { Menu, X, BriefcaseBusiness, User } from 'lucide-react';
+import { Avatar, AvatarFallback } from '@/components/ui/avtar';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from "@/components/ui/drower-menu";
 
 const Navbar = () => {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  
+  // Mock authentication state - in a real app, this would come from an auth provider
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const user = { name: "Jane Smith" };
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
+  };
+  
+  // For demo purposes only - toggle login state
+  const toggleLogin = () => {
+    setIsLoggedIn(!isLoggedIn);
   };
 
   const navLinks = [
@@ -21,6 +38,14 @@ const Navbar = () => {
 
   const isActive = (path: string) => {
     return location.pathname === path;
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(part => part[0])
+      .join('')
+      .toUpperCase();
   };
 
   return (
@@ -49,12 +74,43 @@ const Navbar = () => {
             </div>
           </div>
           <div className="hidden md:flex md:items-center md:space-x-4">
-            <Button variant="outline" asChild>
-              <Link to="/login">Log In</Link>
-            </Button>
-            <Button className="bg-jobify-blue hover:bg-blue-600" asChild>
-              <Link to="/register">Sign Up</Link>
-            </Button>
+            {isLoggedIn ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="rounded-full h-10 w-10 p-0">
+                    <Avatar>
+                      <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile" className="cursor-pointer">
+                      <User className="mr-2 h-4 w-4" />
+                      <span>Profile</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-red-600 cursor-pointer" onClick={toggleLogin}>
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Button variant="outline" asChild>
+                  <Link to="/login">Log In</Link>
+                </Button>
+                <Button className="bg-jobify-blue hover:bg-blue-600" asChild>
+                  <Link to="/register">Sign Up</Link>
+                </Button>
+                {/* Demo toggle button - would be removed in a real app */}
+                <Button variant="outline" size="sm" onClick={toggleLogin} className="ml-2">
+                  Demo: Toggle Login
+                </Button>
+              </>
+            )}
           </div>
           <div className="flex items-center md:hidden">
             <button
@@ -87,12 +143,50 @@ const Navbar = () => {
             ))}
           </div>
           <div className="pt-4 pb-3 border-t border-gray-200 px-4 flex flex-col space-y-3">
-            <Button variant="outline" className="w-full justify-center" asChild>
-              <Link to="/login" onClick={() => setIsOpen(false)}>Log In</Link>
-            </Button>
-            <Button className="w-full justify-center bg-jobify-blue hover:bg-blue-600" asChild>
-              <Link to="/register" onClick={() => setIsOpen(false)}>Sign Up</Link>
-            </Button>
+            {isLoggedIn ? (
+              <>
+                <div className="flex items-center px-3">
+                  <div className="flex-shrink-0">
+                    <Avatar>
+                      <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+                    </Avatar>
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-base font-medium text-gray-800">{user.name}</div>
+                  </div>
+                </div>
+                <Link 
+                  to="/profile" 
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:bg-gray-50 hover:text-jobify-dark"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Profile
+                </Link>
+                <button
+                  className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-gray-50"
+                  onClick={() => { toggleLogin(); setIsOpen(false); }}
+                >
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <>
+                <Button variant="outline" className="w-full justify-center" asChild>
+                  <Link to="/login" onClick={() => setIsOpen(false)}>Log In</Link>
+                </Button>
+                <Button className="w-full justify-center bg-jobify-blue hover:bg-blue-600" asChild>
+                  <Link to="/register" onClick={() => setIsOpen(false)}>Sign Up</Link>
+                </Button>
+                {/* Demo toggle button - would be removed in a real app */}
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-center" 
+                  onClick={() => { toggleLogin(); setIsOpen(false); }}
+                >
+                  Demo: Toggle Login
+                </Button>
+              </>
+            )}
           </div>
         </div>
       )}
