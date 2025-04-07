@@ -48,9 +48,9 @@ const Login = () => {
       const token = response.data?.token;
   
       if (token) {
-        localStorage.setItem("jobportal-token", token);
+        localStorage.setItem("jobify-token", token);
         toast.success("Successfully logged in!");
-        navigate("/jobs");
+        navigate("/");
       } else {
         toast.error("Login failed. No token received.");
       }

@@ -11,16 +11,36 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/drower-menu';
+import axios from 'axios';
 
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const user = { name: 'Jane Smith' };
+ const [user, setUser] = useState({name:''});
+ const [userType, setUserType] = useState();
+
+  const fecthUserName = async (token) => {
+    if (token) {
+      try {
+        const response = await axios.get('http://localhost:4000/job-portal/api/v1/users/get/user-name', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const userType = response.data.user_role;
+        setUserType(userType);
+        setUser({ name: response.data.name })
+      } catch (error) {
+        throw new Error('Failed to fetch user name');
+      }
+    }
+  }
 
   useEffect(() => {
-    const token = localStorage.getItem('jobportal-token');
+    const token = localStorage.getItem('jobify-token');
+    fecthUserName(token)
     if (token) {
       setIsLoggedIn(true);
     } else {
@@ -33,9 +53,10 @@ const Navbar = () => {
   };
 
   const toggleLogin = () => {
-    localStorage.removeItem('jobportal-token');
+    localStorage.removeItem('jobify-token');
     setIsLoggedIn(false);
-    navigate('/login');
+    navigate('/');
+    window.location.reload();
   };
 
   const navLinks = [
@@ -44,6 +65,10 @@ const Navbar = () => {
     { name: 'Find Freelancers', path: '/freelancers' },
     { name: 'For Businesses', path: '/business' },
   ];
+
+  const filteredNavLinks = navLinks.filter(
+    (link) => !(userType === 'user' && link.name === 'For Businesses')
+  );
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -64,7 +89,7 @@ const Navbar = () => {
               <span className="ml-2 text-xl font-bold text-jobify-dark">Jobify</span>
             </Link>
             <div className="hidden md:ml-10 md:flex md:space-x-8">
-              {navLinks.map((link) => (
+              {filteredNavLinks.map((link) => (
                 <Link
                   key={link.name}
                   to={link.path}

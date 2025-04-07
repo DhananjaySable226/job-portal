@@ -63,7 +63,7 @@ const Profile = () => {
     try {
       const response = await axios.get("http://localhost:4000/job-portal/api/v1/users/user_data", {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("jobportal-token")}`,
+          Authorization: `Bearer ${localStorage.getItem("jobify-token")}`,
         },
       });
       const user = response.data[0];
@@ -108,7 +108,7 @@ const Profile = () => {
       };
       await axios.put("http://localhost:4000/job-portal/api/v1/users/", payload, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("jobportal-token")}`,
+          Authorization: `Bearer ${localStorage.getItem("jobify-token")}`,
         },
       });
       toast.success("Profile updated successfully!");
