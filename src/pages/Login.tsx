@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import axios from "axios";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -37,17 +38,26 @@ const Login = () => {
 
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     setIsLoading(true);
+  
     try {
-      // This would be replaced with actual authentication logic
-      console.log("Login submitted:", values);
-      
-      // Simulate login success
-      setTimeout(() => {
+      const response = await axios.post("http://localhost:4000/job-portal/api/v1/users/login", {
+        email: values.email,
+        password: values.password,
+      });
+  
+      const token = response.data?.token;
+  
+      if (token) {
+        localStorage.setItem("jobportal-token", token);
         toast.success("Successfully logged in!");
         navigate("/jobs");
-      }, 1000);
-    } catch (error) {
-      toast.error("Failed to login. Please try again.");
+      } else {
+        toast.error("Login failed. No token received.");
+      }
+  
+    } catch (error: any) {
+      const message = error.response?.data?.message || "Failed to login. Please try again.";
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }

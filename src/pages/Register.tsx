@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import axios from "axios";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -28,7 +29,7 @@ const registerSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
   password: z.string().min(8, { message: "Password must be at least 8 characters" }),
-  accountType: z.enum(["freelancer", "business"], {
+  accountType: z.enum(["user", "business"], {
     required_error: "Please select an account type",
   }),
 });
@@ -43,31 +44,39 @@ const Register = () => {
       name: "",
       email: "",
       password: "",
-      accountType: "freelancer",
+      accountType: "user",
     },
   });
 
   const onSubmit = async (values: z.infer<typeof registerSchema>) => {
     setIsLoading(true);
+  
+    const [firstName, ...rest] = values.name.trim().split(" ");
+    const lastName = rest.join(" ") || "";
+  
     try {
-      // This would be replaced with actual registration logic
-      console.log("Registration submitted:", values);
-      
-      // Simulate registration success
-      setTimeout(() => {
-        toast.success("Account created successfully!");
-        if (values.accountType === "business") {
-          navigate("/business");
-        } else {
-          navigate("/jobs");
-        }
-      }, 1000);
-    } catch (error) {
-      toast.error("Failed to create account. Please try again.");
+      const response = await axios.post("http://localhost:4000/job-portal/api/v1/users/", {
+        first_name: firstName,
+        last_name: lastName,
+        email: values.email,
+        password: values.password,
+      });
+      toast.success("Account created successfully!");
+  
+      if (values.accountType === "business") {
+        navigate("/login");
+      } else {
+        navigate("/login");
+      }
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message || "Failed to create account. Please try again.";
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
   };
+  
 
   return (
     <Layout>
@@ -95,7 +104,7 @@ const Register = () => {
                     <FormLabel>Full Name</FormLabel>
                     <FormControl>
                       <Input 
-                        placeholder="John Doe" 
+                        placeholder="Enter your full name" 
                         {...field} 
                       />
                     </FormControl>
@@ -113,7 +122,7 @@ const Register = () => {
                     <FormControl>
                       <Input 
                         type="email" 
-                        placeholder="your.email@example.com" 
+                        placeholder="Enter your email" 
                         {...field} 
                       />
                     </FormControl>
@@ -145,7 +154,7 @@ const Register = () => {
                 name="accountType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>I am a</FormLabel>
+                    <FormLabel>Role</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
@@ -153,7 +162,7 @@ const Register = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="freelancer">Freelancer</SelectItem>
+                        <SelectItem value="user">user</SelectItem>
                         <SelectItem value="business">Business</SelectItem>
                       </SelectContent>
                     </Select>

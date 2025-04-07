@@ -1,32 +1,41 @@
-import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, X, BriefcaseBusiness, User } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avtar';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
-} from "@/components/ui/drower-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/drower-menu';
 
 const Navbar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-  
-  // Mock authentication state - in a real app, this would come from an auth provider
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const user = { name: "Jane Smith" };
+  const user = { name: 'Jane Smith' };
+
+  useEffect(() => {
+    const token = localStorage.getItem('jobportal-token');
+    if (token) {
+      setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
+    }
+  }, []);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
-  
-  // For demo purposes only - toggle login state
+
   const toggleLogin = () => {
-    setIsLoggedIn(!isLoggedIn);
+    localStorage.removeItem('jobportal-token');
+    setIsLoggedIn(false);
+    navigate('/login');
   };
 
   const navLinks = [
@@ -36,17 +45,14 @@ const Navbar = () => {
     { name: 'For Businesses', path: '/business' },
   ];
 
-  const isActive = (path: string) => {
-    return location.pathname === path;
-  };
+  const isActive = (path: string) => location.pathname === path;
 
-  const getInitials = (name: string) => {
-    return name
+  const getInitials = (name: string) =>
+    name
       .split(' ')
-      .map(part => part[0])
+      .map((part) => part[0])
       .join('')
       .toUpperCase();
-  };
 
   return (
     <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
@@ -73,6 +79,7 @@ const Navbar = () => {
               ))}
             </div>
           </div>
+
           <div className="hidden md:flex md:items-center md:space-x-4">
             {isLoggedIn ? (
               <DropdownMenu>
@@ -105,13 +112,10 @@ const Navbar = () => {
                 <Button className="bg-jobify-blue hover:bg-blue-600" asChild>
                   <Link to="/register">Sign Up</Link>
                 </Button>
-                {/* Demo toggle button - would be removed in a real app */}
-                <Button variant="outline" size="sm" onClick={toggleLogin} className="ml-2">
-                  Demo: Toggle Login
-                </Button>
               </>
             )}
           </div>
+
           <div className="flex items-center md:hidden">
             <button
               onClick={toggleMenu}
@@ -123,7 +127,6 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile menu */}
       {isOpen && (
         <div className="md:hidden">
           <div className="pt-2 pb-3 space-y-1 px-4">
@@ -155,8 +158,8 @@ const Navbar = () => {
                     <div className="text-base font-medium text-gray-800">{user.name}</div>
                   </div>
                 </div>
-                <Link 
-                  to="/profile" 
+                <Link
+                  to="/profile"
                   className="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:bg-gray-50 hover:text-jobify-dark"
                   onClick={() => setIsOpen(false)}
                 >
@@ -164,7 +167,10 @@ const Navbar = () => {
                 </Link>
                 <button
                   className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-gray-50"
-                  onClick={() => { toggleLogin(); setIsOpen(false); }}
+                  onClick={() => {
+                    toggleLogin();
+                    setIsOpen(false);
+                  }}
                 >
                   Sign Out
                 </button>
@@ -176,14 +182,6 @@ const Navbar = () => {
                 </Button>
                 <Button className="w-full justify-center bg-jobify-blue hover:bg-blue-600" asChild>
                   <Link to="/register" onClick={() => setIsOpen(false)}>Sign Up</Link>
-                </Button>
-                {/* Demo toggle button - would be removed in a real app */}
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-center" 
-                  onClick={() => { toggleLogin(); setIsOpen(false); }}
-                >
-                  Demo: Toggle Login
                 </Button>
               </>
             )}
