@@ -18,8 +18,8 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
- const [user, setUser] = useState({name:''});
- const [userType, setUserType] = useState();
+  const [user, setUser] = useState({ name: '' });
+  const [userType, setUserType] = useState();
 
   const fecthUserName = async (token) => {
     if (token) {
@@ -29,24 +29,31 @@ const Navbar = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        const userType = response.data.user_role;
+        const userType = response.data.user.user_role;
         setUserType(userType);
-        setUser({ name: response.data.name })
+        setUser({ name: response.data.user.name })
+        setIsLoggedIn(true);
       } catch (error) {
-        throw new Error('Failed to fetch user name');
+        if (error.response?.status === 401) {
+          localStorage.removeItem('jobify-token');
+          setIsLoggedIn(false);
+          setUser({ name: '' });
+        } else {
+          console.error('Failed to fetch user name', error);
+        }
       }
     }
   }
 
   useEffect(() => {
     const token = localStorage.getItem('jobify-token');
-    fecthUserName(token)
     if (token) {
-      setIsLoggedIn(true);
+      fecthUserName(token);
     } else {
       setIsLoggedIn(false);
+      setUser({ name: '' });
     }
-  }, []);
+  }, [location.pathname]);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -72,12 +79,14 @@ const Navbar = () => {
 
   const isActive = (path: string) => location.pathname === path;
 
-  const getInitials = (name: string) =>
-    name
+  function getInitials(name?: string) {
+    if (!name || typeof name !== 'string') return 'NA';
+    return name
       .split(' ')
-      .map((part) => part[0])
+      .map((n) => n[0])
       .join('')
       .toUpperCase();
+  }
 
   return (
     <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
@@ -93,11 +102,10 @@ const Navbar = () => {
                 <Link
                   key={link.name}
                   to={link.path}
-                  className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${
-                    isActive(link.path)
+                  className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${isActive(link.path)
                       ? 'border-b-2 border-jobify-blue text-jobify-blue'
                       : 'text-gray-500 hover:text-jobify-dark hover:border-b-2 hover:border-gray-300'
-                  }`}
+                    }`}
                 >
                   {link.name}
                 </Link>
@@ -111,7 +119,7 @@ const Navbar = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="rounded-full h-10 w-10 p-0">
                     <Avatar>
-                      <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+                      <AvatarFallback>{isLoggedIn && user.name ? getInitials(user.name) : 'NA'}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
@@ -159,11 +167,10 @@ const Navbar = () => {
               <Link
                 key={link.name}
                 to={link.path}
-                className={`block px-3 py-2 rounded-md text-base font-medium ${
-                  isActive(link.path)
+                className={`block px-3 py-2 rounded-md text-base font-medium ${isActive(link.path)
                     ? 'bg-jobify-blue bg-opacity-10 text-jobify-blue'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-jobify-dark'
-                }`}
+                  }`}
                 onClick={() => setIsOpen(false)}
               >
                 {link.name}
@@ -176,7 +183,7 @@ const Navbar = () => {
                 <div className="flex items-center px-3">
                   <div className="flex-shrink-0">
                     <Avatar>
-                      <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+                      <AvatarFallback>{getInitials(user.name || "")}</AvatarFallback>
                     </Avatar>
                   </div>
                   <div className="ml-3">
