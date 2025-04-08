@@ -103,8 +103,8 @@ const Navbar = () => {
                   key={link.name}
                   to={link.path}
                   className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${isActive(link.path)
-                      ? 'border-b-2 border-jobify-blue text-jobify-blue'
-                      : 'text-gray-500 hover:text-jobify-dark hover:border-b-2 hover:border-gray-300'
+                    ? 'border-b-2 border-jobify-blue text-jobify-blue'
+                    : 'text-gray-500 hover:text-jobify-dark hover:border-b-2 hover:border-gray-300'
                     }`}
                 >
                   {link.name}
@@ -119,7 +119,7 @@ const Navbar = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="rounded-full h-10 w-10 p-0">
                     <Avatar>
-                      <AvatarFallback>{isLoggedIn && user.name ? getInitials(user.name) : 'NA'}</AvatarFallback>
+                      <AvatarFallback className="bg-[lavender] text-black-600 hover:text-red-600">{isLoggedIn && user.name ? getInitials(user.name) : 'NA'}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
@@ -168,8 +168,8 @@ const Navbar = () => {
                 key={link.name}
                 to={link.path}
                 className={`block px-3 py-2 rounded-md text-base font-medium ${isActive(link.path)
-                    ? 'bg-jobify-blue bg-opacity-10 text-jobify-blue'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-jobify-dark'
+                  ? 'bg-jobify-blue bg-opacity-10 text-jobify-blue'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-jobify-dark'
                   }`}
                 onClick={() => setIsOpen(false)}
               >

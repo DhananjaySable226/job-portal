@@ -81,7 +81,7 @@ const Profile = () => {
         }),
         completedJobs: 0,
         rating: 0,
-        skills: [],
+        skills: ["JavaScript", "React", "Node.js", "HTML/CSS"],
       };
 
       setUserData(transformedData);
